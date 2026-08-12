@@ -285,6 +285,19 @@ h1{
   display:inline-block;
   animation:pulse 1.6s ease-in-out infinite;
 }
+.board-hint{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:11px 18px;
+  background:rgba(255,176,32,.05);
+  border-bottom:1px dashed var(--line);
+  font-family:var(--mono);
+  font-size:11px;
+  line-height:1.5;
+  color:var(--muted);
+}
+.board-hint .arrow{color:var(--amber); flex:0 0 auto;}
 .board-clock{
   font-family:var(--mono);
   font-size:12.5px;
@@ -510,22 +523,27 @@ h1{
 /* ---------- CLOSING ---------- */
 .closing{
   border-top:1px solid var(--line);
-  padding-top:24px;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  flex-wrap:wrap;
+  padding:40px 10px 12px;
+  text-align:center;
 }
 .closing-badge{
-  font-family:var(--mono);
-  font-size:11px;
-  letter-spacing:.08em;
-  color:var(--amber);
-  border:1px solid var(--amber);
-  border-radius:20px;
-  padding:5px 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  font-family:var(--disp);
+  font-weight:700;
+  font-size:clamp(30px,6vw,54px);
+  letter-spacing:.01em;
+  font-stretch:condensed;
+  color:var(--danger);
+  text-shadow:0 0 24px rgba(232,102,79,.45);
 }
-.closing p{color:var(--muted); font-size:14px; max-width:52ch;}
+.closing-badge .dot{
+  display:inline-block;
+  font-size:.45em;
+  animation:pulse .9s ease-in-out infinite;
+}
 
 /* ---------- ANIM ---------- */
 @keyframes flip{
@@ -542,7 +560,7 @@ h1{
 @media (prefers-reduced-motion: reduce){
   .dep-row{animation:none; opacity:1; transform:none;}
   .status-pill.current{animation:none;}
-  .eyebrow .dot, .board-panel-title .lit{animation:none;}
+  .eyebrow .dot, .board-panel-title .lit, .closing-badge .dot{animation:none;}
 }
 
 @media (max-width:640px){
@@ -595,6 +613,7 @@ h1{
       <div class="board-panel-title"><span class="lit">●</span> PANTALLA DE SALIDAS — MANTENIMIENTO AEP</div>
       <div class="board-clock" id="boardClock">--:--:--</div>
     </div>
+    <div class="board-hint"><span class="arrow">↗</span> Cada "ABRIR" te lleva a una pestaña nueva. El hub queda esperando atrás: deslizá o cambiá de pestaña para volver y seguir el recorrido.</div>
     <div id="depBoard"></div>
   </main>
 
@@ -614,8 +633,7 @@ h1{
   <div class="tagline">El futuro llegó hace rato.</div>
 
   <footer class="closing">
-    <div class="closing-badge">◆ ÚLTIMA LLAMADA</div>
-    <p>Antes de cerrar el vuelo: alguien del grupo le pregunta lo que quiera al chatbot, en vivo, sin que vos sepas la respuesta de antemano.</p>
+    <div class="closing-badge"><span class="dot">●</span>ÚLTIMA LLAMADA</div>
   </footer>
 
 </div>

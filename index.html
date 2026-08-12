@@ -69,12 +69,19 @@ body{
   gap:32px;
   flex-wrap:wrap;
   align-items:flex-start;
+  justify-content:center;
   border-bottom:1px solid var(--line);
   padding-bottom:32px;
   margin-bottom:36px;
 }
 
-.hero-left{flex:1 1 380px; min-width:280px;}
+.hero-left{
+  flex:1 1 380px;
+  min-width:280px;
+  max-width:480px;
+  margin:0 auto;
+  text-align:center;
+}
 
 .eyebrow{
   font-family:var(--mono);
@@ -101,7 +108,7 @@ h1{
   color:var(--muted);
   font-size:15px;
   max-width:36ch;
-  margin-bottom:26px;
+  margin:0 auto 26px;
 }
 
 .agenda{
@@ -121,6 +128,7 @@ h1{
 .agenda li{
   display:flex;
   justify-content:space-between;
+  align-items:baseline;
   gap:10px;
   font-family:var(--mono);
   font-size:13px;
@@ -128,9 +136,15 @@ h1{
   border-bottom:1px dashed var(--line);
 }
 .agenda li:last-child{border-bottom:none;}
-.agenda li a{color:var(--text); text-decoration:none;}
+.agenda li a{
+  color:var(--text);
+  text-decoration:none;
+  min-width:0;
+  overflow-wrap:break-word;
+  text-align:left;
+}
 .agenda li a:hover{color:var(--amber);}
-.agenda li .t{color:var(--muted);}
+.agenda li .t{color:var(--muted); flex:0 0 auto; white-space:nowrap;}
 .agenda-total{
   font-family:var(--mono);
   font-size:11px;
@@ -296,12 +310,10 @@ h1{
 .dep-row.is-current{background:rgba(255,176,32,.06);}
 
 .dep-num{
-  flex:0 0 auto;
-  width:22px;
-  padding-top:3px;
   font-family:var(--mono);
   font-size:12px;
   color:var(--muted);
+  margin-right:8px;
 }
 .dep-main{
   flex:1 1 auto;
@@ -312,17 +324,20 @@ h1{
 }
 .dep-line1{
   display:flex;
-  align-items:center;
+  align-items:baseline;
   gap:10px;
   flex-wrap:wrap;
   justify-content:space-between;
 }
 .dep-dest{
+  flex:1 1 auto;
+  min-width:0;
   font-family:var(--disp);
   font-weight:700;
   font-size:17px;
   letter-spacing:-.005em;
   font-stretch:condensed;
+  overflow-wrap:break-word;
 }
 .dep-line2{
   font-family:var(--mono);
@@ -563,9 +578,9 @@ h1{
         <span>AEROPUERTOS ARGENTINA</span>
       </div>
       <div class="ticket-row top"><span>VUELO</span><span>MANT · 01</span></div>
-      <div class="ticket-row"><span>ORIGEN</span><span>SALA</span></div>
-      <div class="ticket-row"><span>DESTINO</span><span>TODOS LOS PROYECTOS</span></div>
-      <div class="ticket-row"><span>PUERTA</span><span>TODAS</span></div>
+      <div class="ticket-row"><span>ORIGEN</span><span>AEROPARQUE</span></div>
+      <div class="ticket-row"><span>DESTINO</span><span>TODOS LOS AEROPUERTOS</span></div>
+      <div class="ticket-row"><span>PUERTA</span><span>OFICINA TERMOMECÁNICA</span></div>
       <div class="ticket-perf"></div>
       <div class="ticket-qr" id="mainQr"></div>
       <div class="ticket-foot">Escaneá para entrar al hub</div>
@@ -643,10 +658,9 @@ projects.forEach((p, i) => {
   row.id = `card-${i}`;
   row.style.setProperty('--d', i);
   row.innerHTML = `
-    <div class="dep-num">${String(i+1).padStart(2,'0')}</div>
     <div class="dep-main">
       <div class="dep-line1">
-        <span class="dep-dest">${p.name}</span>
+        <span class="dep-dest"><span class="dep-num">${String(i+1).padStart(2,'0')}</span>${p.name}</span>
         <span class="status-pill upcoming">A TIEMPO</span>
       </div>
       <div class="dep-line2">${p.time}<span class="sep">·</span>PUERTA ${p.gate}</div>
@@ -738,19 +752,11 @@ function tickBoardClock() {
 tickBoardClock();
 setInterval(tickBoardClock, 1000);
 
-// ---- Brainstorm: shared idea board ----
-const IDEA_KEY = 'brainstorm-ideas';
-const hasSharedStorage = typeof window.storage !== 'undefined';
-let localIdeas = []; // used only when shared storage isn't available
-
+// ---- Torre de control: shared idea board, synced via /api/ideas (Vercel KV) ----
 const ideaInput = document.getElementById('ideaInput');
 const ideaBtn = document.getElementById('ideaBtn');
 const brainstormList = document.getElementById('brainstormList');
 const brainstormNote = document.getElementById('brainstormNote');
-
-if (!hasSharedStorage) {
-  brainstormNote.textContent = 'Esta lista queda solo en este celu (no se sincroniza con los demás).';
-}
 
 function renderIdeas(ideas) {
   if (!ideas || ideas.length === 0) {
@@ -778,16 +784,14 @@ function formatTime(ts) {
 }
 
 async function loadIdeas() {
-  if (!hasSharedStorage) {
-    renderIdeas(localIdeas);
-    return;
-  }
   try {
-    const result = await window.storage.get(IDEA_KEY, true);
-    const ideas = result ? JSON.parse(result.value) : [];
+    const res = await fetch('/api/ideas');
+    if (!res.ok) throw new Error('bad response');
+    const ideas = await res.json();
     renderIdeas(ideas);
+    brainstormNote.textContent = '';
   } catch (err) {
-    renderIdeas([]);
+    brainstormNote.textContent = 'La torre de control se sincroniza una vez publicado en Vercel.';
   }
 }
 
@@ -796,28 +800,17 @@ async function addIdea() {
   if (!text) return;
 
   ideaBtn.disabled = true;
-  const newIdea = { text, ts: Date.now() };
-
-  if (!hasSharedStorage) {
-    localIdeas.push(newIdea);
-    renderIdeas(localIdeas);
-    ideaInput.value = '';
-    ideaBtn.disabled = false;
-    return;
-  }
-
   try {
-    let ideas = [];
-    try {
-      const result = await window.storage.get(IDEA_KEY, true);
-      ideas = result ? JSON.parse(result.value) : [];
-    } catch (err) {
-      ideas = [];
-    }
-    ideas.push(newIdea);
-    await window.storage.set(IDEA_KEY, JSON.stringify(ideas), true);
+    const res = await fetch('/api/ideas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) throw new Error('bad response');
+    const ideas = await res.json();
     renderIdeas(ideas);
     ideaInput.value = '';
+    brainstormNote.textContent = '';
   } catch (err) {
     brainstormNote.textContent = 'No se pudo guardar la idea. Probá de nuevo.';
   } finally {
@@ -831,9 +824,7 @@ ideaInput.addEventListener('keydown', (e) => {
 });
 
 loadIdeas();
-if (hasSharedStorage) {
-  setInterval(loadIdeas, 4000);
-}
+setInterval(loadIdeas, 4000);
 </script>
 
 </body>

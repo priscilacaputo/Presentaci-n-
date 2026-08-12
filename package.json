@@ -1,0 +1,9 @@
+{
+  "name": "hub-mantenimiento-aep",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Hub de presentación de herramientas de Mantenimiento AEP",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}

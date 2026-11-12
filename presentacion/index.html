@@ -33,7 +33,10 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--text);font-fam
 
 /* ── Chrome global (header + ruta) ── */
 #hdr{position:absolute;left:72px;right:72px;top:46px;height:52px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:24px;letter-spacing:.06em;font-weight:700;transition:opacity .4s}
-#hdr .l{color:var(--amber)} #hdr .r{color:var(--amber)}
+#hdr .l{color:var(--amber);display:flex;align-items:center;gap:26px}
+#hdr .home{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:.06em;color:var(--text);background:transparent;border:2px solid var(--line2);border-radius:26px;height:46px;padding:0 22px;cursor:pointer;display:inline-flex;align-items:center;gap:12px;transition:all .2s}
+#hdr .home:hover{border-color:var(--amber);color:var(--amber);transform:translateX(-3px)}
+#track .lab{cursor:pointer;transition:color .2s}#track .lab:hover{color:var(--amber)} #hdr .r{color:var(--amber)}
 .pill{display:inline-flex;align-items:center;gap:12px;height:52px;padding:0 30px;border-radius:26px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:.08em;transition:all .4s}
 .pill.amber{--c:var(--amber)}.pill.blue{--c:var(--blue)}.pill.green{--c:var(--green)}.pill.gray{--c:var(--gray)}
 #track{position:absolute;left:0;right:0;bottom:0;height:110px;transition:opacity .4s}
@@ -214,11 +217,12 @@ body.moving #nav{opacity:.9}
   <div id="hdr"><span class="l"></span><span class="r"></span></div>
   <div id="track"><span class="lab">RUTA MANT-AEP</span><div class="base"></div><div class="done"></div><div class="plane"></div></div>
   <div id="notes"></div>
-  <div id="hint"><b>← →</b> navegar &nbsp;·&nbsp; <b>F</b> pantalla completa &nbsp;·&nbsp; <b>N</b> notas &nbsp;·&nbsp; <b>Enter</b> entrar a la página</div>
+  <div id="hint"><b>← →</b> navegar &nbsp;·&nbsp; <b>F</b> pantalla completa &nbsp;·&nbsp; <b>N</b> notas &nbsp;·&nbsp; <b>I</b> itinerario &nbsp;·&nbsp; <b>Enter</b> entrar</div>
 </div>
 <div id="page"><div class="pbar"><span class="pt"></span><span class="sp"></span>
   <button id="pguion" title="Mostrar el guion de la demo (G)">GUION</button>
   <a id="pext" target="_blank" rel="noopener">NUEVA PESTAÑA ↗</a>
+  <button id="pitin" title="Ir al itinerario (I)">☰ ITINERARIO</button>
   <button id="pback" title="Volver (Esc)">← VOLVER A LA PRESENTACIÓN</button>
   <button id="pnext" class="primary">SIGUIENTE PARADA →</button></div>
   <div class="pbody"><div class="ld">CARGANDO PÁGINA…</div></div><div id="pguide"></div></div>
@@ -2671,12 +2675,25 @@ function setChrome(s) {
   if (kind === 'itin') { l.textContent = 'SALIDAS · DEPARTURES'; r.innerHTML = 'NOVIEMBRE 2026'; }
   if (kind === 'stop') {
     const i = +s.dataset.stop, st = STOPS[i];
-    l.textContent = `PARADA ${pad(i + 1)} / ${pad(TOTAL_STOPS)}  ·  PUERTA ${st.gate}`;
+    l.innerHTML = `<button class="home" title="Volver al itinerario (I)">☰ ITINERARIO</button><span>PARADA ${pad(i + 1)} / ${pad(TOTAL_STOPS)}  ·  PUERTA ${st.gate}</span>`;
+    l.querySelector('.home').onclick = () => go(1);
     r.innerHTML = `<span class="pill ${s.dataset.color}"><span class="dot">●</span>${s.dataset.status}</span>`;
     plane.style.left = xs[i] + 'px'; doneBar.style.width = (xs[i] - xs[0]) + 'px';
     stopEls.forEach((e, k) => e.classList.toggle('on', k < i));
   }
 }
+
+/* Itinerario: refleja por dónde vas (abordada / en curso / próxima) */
+let reached = 0;
+function updateItin() {
+  document.querySelectorAll('.board .row[data-go-stop]').forEach((r) => {
+    const i = +r.dataset.goStop, pl = r.querySelector('.pill');
+    const state = i < reached ? ['green', 'ABORDADA'] : i === reached ? ['amber', 'EMBARCANDO'] : ['blue', 'PRÓXIMA'];
+    pl.className = 'pill ' + state[0]; pl.textContent = state[1]; r.classList.toggle('first', i === reached);
+  });
+}
+document.querySelector('#track .lab').onclick = () => go(1);
+document.getElementById('pitin').onclick = () => { exitPage(); go(1); };
 
 /* Demo: captura / en vivo */
 function setView(s, v) {
@@ -2720,6 +2737,8 @@ function go(n) {
   if (pageOpen >= 0) exitPage();
   cur = n;
   slides.forEach((s, i) => { s.classList.toggle('active', i === cur); s.classList.toggle('past', i < cur); });
+  const sd = slides[cur].dataset.stop; if (sd !== undefined) reached = Math.max(reached, +sd); if (cur === N - 1) reached = TOTAL_STOPS;
+  updateItin();
   setChrome(slides[cur]);
   const s = slides[cur]; if (s.dataset.demo && s.querySelector('.bv.live')) setView(s, 'live');
   document.getElementById('count').textContent = `${pad(cur + 1)} / ${pad(N)}`;
@@ -2733,10 +2752,11 @@ const next = () => go(cur + 1), prev = () => go(cur - 1);
 document.getElementById('next').onclick = next; document.getElementById('prev').onclick = prev;
 document.querySelectorAll('[data-go-stop]').forEach((r) => r.onclick = () => go(slides.findIndex((s) => s.dataset.stop == r.dataset.goStop)));
 addEventListener('keydown', (e) => {
-  if (pageOpen >= 0) { if (e.key === 'Escape') exitPage(); else if (e.key === 'g' || e.key === 'G') pguide.classList.toggle('on'); return; }
+  if (pageOpen >= 0) { if (e.key === 'Escape') exitPage(); else if (e.key === 'g' || e.key === 'G') pguide.classList.toggle('on'); else if (e.key === 'i' || e.key === 'I') { exitPage(); go(1); } return; }
   if (['Enter', 'ArrowDown'].includes(e.key) && slides[cur].dataset.demo) { e.preventDefault(); enterPage(+slides[cur].dataset.stop); return; }
   if (['ArrowRight', 'PageDown', ' ', 'Enter', 'ArrowDown'].includes(e.key)) { e.preventDefault(); next(); }
   else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.key === 'i' || e.key === 'I') go(1);
   else if (e.key === 'Home') go(0); else if (e.key === 'End') go(N - 1);
   else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
   else if (e.key === 'n' || e.key === 'N') document.getElementById('notes').classList.toggle('on');

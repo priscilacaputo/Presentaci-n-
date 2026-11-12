@@ -62,4 +62,7 @@ for name, url in [("grilla", "https://grilla-inteligente-termo.vercel.app/"),
                   ("techo", "https://filtraciones-infra.vercel.app/"),
                   ("pista", "https://infra-lado-pista.vercel.app/")]:
     segno.make(url, error="m").save(f"{A}/qr_{name}.png", scale=12, border=2, dark="0A0D10", light="FFFFFF")
+import json
+cfg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")))
+segno.make(cfg["presentationUrl"], error="m").save(f"{A}/qr_presentacion.png", scale=12, border=1, dark="0A0D10", light="F3F7F8")
 print("ok")

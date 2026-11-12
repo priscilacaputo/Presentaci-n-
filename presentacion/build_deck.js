@@ -33,7 +33,7 @@ const THEME = {
 };
 
 // ───────────── Contenido ─────────────
-const { TOTAL_STOPS, ROUTE, STOPS } = require("./data.js");
+const { TOTAL_STOPS, ROUTE, STOPS, presentationUrl: PRES_URL } = require("./data.js");
 
 // ───────────── Íconos ─────────────
 const iconCache = {};
@@ -112,8 +112,11 @@ async function slideCover(pres) {
   });
   mono(s, "PASAJERO", cx + 0.35, fy + 0.85, 2, 0.2, { color: "5B6570", fontSize: 10 });
   sans(s, "Equipo de Mantenimiento AEP", cx + 0.35, fy + 1.1, 4.3, 0.35, { fontSize: 16, bold: true, color: INK });
-  s.addShape("line", { x: cx + 0.35, y: cy + 4.3, w: cw - 0.7, h: 0, line: { color: "A9B4BA", width: 1, dashType: "dash" }, objectName: "Perforado" });
-  s.addImage({ path: A("barcode_oscuro.png"), x: cx + 0.35, y: cy + 4.6, w: cw - 0.7, h: 0.6, altText: "Código de barras decorativo" });
+  s.addShape("line", { x: cx, y: cy + 4.15, w: cw, h: 0, line: { color: "A9B4BA", width: 1, dashType: "dash" }, objectName: "Perforado" });
+  s.addImage({ path: A("qr_presentacion.png"), x: cx + 0.35, y: cy + 4.35, w: 1.2, h: 1.2, altText: "Código QR para abrir la presentación", hyperlink: { url: PRES_URL } });
+  mono(s, "ESCANEÁ PARA ABORDAR", cx + 1.85, cy + 4.4, 2.8, 0.2, { color: "5B6570", fontSize: 10 });
+  sans(s, "Abrí la presentación en tu celular", cx + 1.85, cy + 4.65, 2.8, 0.6, { fontSize: 16, bold: true, color: INK });
+  mono(s, PRES_URL.replace(/^https?:\/\//, ""), cx + 1.85, cy + 5.2, 2.8, 0.3, { color: "5B6570", fontSize: 9 });
   s.addNotes("Apertura. Contar la idea del recorrido: cada herramienta es una parada de un vuelo. En cada una vamos a ver primero un pantallazo (qué hace), después qué mejoró, y por último la página funcionando en vivo.");
 }
 

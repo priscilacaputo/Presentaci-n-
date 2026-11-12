@@ -24,6 +24,7 @@ for (const n of names) {
 // JSON seguro para incrustar dentro de <script>
 const safe = (o) => JSON.stringify(o).replace(/</g, "\\u003c").split("\u2028").join("").split("\u2029").join("");
 const src = fs.readFileSync(path.join(__dirname, "web_src.html"), "utf8");
-const out = src.replace("/*DATA*/", () => safe(data)).replace("/*ICONS*/", () => safe(icons));
+const qrlib = fs.readFileSync(path.join(__dirname, "vendor", "qrcode.js"), "utf8");
+const out = src.replace("/*DATA*/", () => safe(data)).replace("/*ICONS*/", () => safe(icons)).replace("/*QRLIB*/", () => qrlib);
 fs.writeFileSync(path.join(__dirname, "index.html"), out);
 console.log("OK → presentacion/index.html", (out.length / 1024).toFixed(0) + " KB");

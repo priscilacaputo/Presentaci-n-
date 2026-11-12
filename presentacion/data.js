@@ -214,4 +214,5 @@ Object.assign(STOPS[1], {
 });
 for (const st of STOPS.slice(2)) st.aportaTitle = "Lo que aporta";
 
-module.exports = { TOTAL_STOPS, ROUTE, STOPS };
+const { presentationUrl } = require("./config.json");
+module.exports = { TOTAL_STOPS, ROUTE, STOPS, presentationUrl };

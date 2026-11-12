@@ -164,7 +164,28 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--text);font-fam
 .cta{display:flex;gap:26px;align-items:center;margin-top:34px}
 .cta a.go{display:inline-flex;align-items:center;gap:14px;height:78px;padding:0 28px;border-radius:16px;background:var(--green);color:var(--ink);text-decoration:none;font-family:var(--mono);font-weight:700;font-size:22px;letter-spacing:.04em;white-space:nowrap;transition:transform .2s}
 .cta a.go:hover{transform:translateY(-3px)}
-.cta .qr{width:172px;height:172px;background:#fff;border-radius:12px;padding:4px}
+.cta .qr{width:150px;height:150px;background:#fff;border-radius:12px;padding:4px}
+.cta button.go{cursor:pointer;border:0;display:inline-flex;align-items:center;gap:14px;height:78px;padding:0 26px;border-radius:16px;background:var(--green);color:var(--ink);font-family:var(--mono);font-weight:700;font-size:21px;letter-spacing:.03em;white-space:nowrap;transition:transform .2s,box-shadow .2s;box-shadow:0 0 0 0 rgba(53,201,122,.5);animation:glow 2.2s infinite}
+.cta button.go:hover{transform:translateY(-3px)}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(53,201,122,.45)}50%{box-shadow:0 0 0 14px rgba(53,201,122,0)}}
+.bv.shot img{cursor:zoom-in}
+.enterhint{margin-top:18px;font-family:var(--mono);font-size:19px;color:var(--muted);letter-spacing:.04em}.enterhint b{color:var(--amber)}
+/* Modo página: la herramienta real a pantalla completa */
+#page{position:fixed;inset:0;z-index:20;background:var(--ink);display:none;flex-direction:column}
+#page.on{display:flex}
+.pbar{flex:0 0 56px;display:flex;align-items:center;gap:10px;padding:0 16px;background:#10161A;border-bottom:2px solid var(--line2);font-family:var(--mono);font-size:14px;letter-spacing:.06em}
+.pbar .pt{color:var(--amber);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbar .pt i{font-style:normal;color:var(--muted);margin:0 8px}
+.pbar .sp{flex:1}
+.pbar button,.pbar a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:18px;border:1px solid var(--line2);background:transparent;color:var(--text);font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.05em;text-decoration:none;cursor:pointer;white-space:nowrap}
+.pbar button:hover,.pbar a:hover{border-color:var(--amber);color:var(--amber)}
+.pbar .primary{background:var(--green);border-color:var(--green);color:var(--ink)}.pbar .primary:hover{color:var(--ink);filter:brightness(1.1)}
+.pbody{position:relative;flex:1;background:var(--ink)}
+.pbody iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}.pbody iframe.on{display:block}
+.pbody .ld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:16px;letter-spacing:.1em;color:var(--muted)}
+#pguide{position:absolute;left:16px;bottom:16px;width:360px;padding:18px 20px;border-radius:14px;background:rgba(10,13,16,.95);border:2px solid var(--amber);display:none;z-index:3}
+#pguide.on{display:block}#pguide b.t{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--amber);margin-bottom:10px}
+#pguide div{display:flex;gap:12px;align-items:center;font-size:15px;line-height:1.3;margin-top:8px}#pguide i{flex:0 0 26px;height:26px;border-radius:50%;background:var(--amber);color:var(--ink);font-family:var(--mono);font-style:normal;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+body.inpage #nav,body.inpage #hint{display:none}
 
 /* ── Navegación ── */
 #nav{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:10;display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:13px;color:var(--muted);opacity:.0;transition:opacity .3s}
@@ -185,8 +206,14 @@ body.moving #nav{opacity:.9}
   <div id="hdr"><span class="l"></span><span class="r"></span></div>
   <div id="track"><span class="lab">RUTA MANT-AEP</span><div class="base"></div><div class="done"></div><div class="plane"></div></div>
   <div id="notes"></div>
-  <div id="hint"><b>← →</b> navegar &nbsp;·&nbsp; <b>F</b> pantalla completa &nbsp;·&nbsp; <b>N</b> notas</div>
+  <div id="hint"><b>← →</b> navegar &nbsp;·&nbsp; <b>F</b> pantalla completa &nbsp;·&nbsp; <b>N</b> notas &nbsp;·&nbsp; <b>Enter</b> entrar a la página</div>
 </div>
+<div id="page"><div class="pbar"><span class="pt"></span><span class="sp"></span>
+  <button id="pguion" title="Mostrar el guion de la demo (G)">GUION</button>
+  <a id="pext" target="_blank" rel="noopener">NUEVA PESTAÑA ↗</a>
+  <button id="pback" title="Volver (Esc)">← VOLVER A LA PRESENTACIÓN</button>
+  <button id="pnext" class="primary">SIGUIENTE PARADA →</button></div>
+  <div class="pbody"><div class="ld">CARGANDO PÁGINA…</div></div><div id="pguide"></div></div>
 <div id="nav"><button id="prev" aria-label="Anterior">‹</button><span id="count"></span><button id="next" aria-label="Siguiente">›</button></div>
 
 <script>
@@ -279,7 +306,8 @@ function demo(st) {
       <a href="${st.url}" target="_blank" rel="noopener" title="Abrir en pestaña nueva" aria-label="Abrir en pestaña nueva">${ic('FaExternalLinkAlt')}</a></div>
       <div class="bv ${hasShot ? 'shot' : 'live'}">${hasShot ? `<img src="assets/shots/${st.id}.png" alt="Captura de ${esc(st.name)}">` : ''}<div class="ld">CARGANDO PÁGINA…</div><iframe data-src="${st.url}" title="${esc(st.name)}" loading="lazy" referrerpolicy="no-referrer"></iframe></div></div>
     <div class="steps"><div class="t rise" style="--i:1">RECORRIDO DE LA DEMO</div>${steps}
-      <div class="cta rise" style="--i:6"><a class="go" href="${st.url}" target="_blank" rel="noopener">ABRIR EN VIVO ${ic('FaArrowRight')}</a><img class="qr" src="assets/qr_${st.id}.png" alt="Código QR a ${esc(st.urlShort)}"></div></div></section>`;
+      <div class="cta rise" style="--i:6"><button class="go" data-enter="${st.idx}">ENTRAR A LA PÁGINA ${ic('FaArrowRight')}</button><img class="qr" src="assets/qr_${st.id}.png" alt="Código QR a ${esc(st.urlShort)}"></div>
+      <div class="enterhint rise" style="--i:7">Tecla <b>Enter</b> para entrar · <b>Esc</b> para volver</div></div></section>`;
 }
 
 function closing() {
@@ -340,9 +368,37 @@ function setView(s, v) {
 }
 slides.forEach((s) => s.querySelectorAll('.seg button').forEach((b) => b.onclick = () => setView(s, b.dataset.v)));
 
+/* Modo página: la herramienta real a pantalla completa, sin perder el hilo de la presentación */
+const pageEl = document.getElementById('page'), pbody = pageEl.querySelector('.pbody'), pguide = document.getElementById('pguide');
+const pframes = {}; let pageOpen = -1;
+function enterPage(i) {
+  const st = STOPS[i]; if (!st) return;
+  if (!pframes[i]) { const f = document.createElement('iframe'); f.src = st.url; f.title = st.name; f.referrerPolicy = 'no-referrer'; pbody.appendChild(f); pframes[i] = f; }
+  Object.entries(pframes).forEach(([k, f]) => f.classList.toggle('on', +k === i));
+  pageEl.querySelector('.pt').innerHTML = `PARADA ${pad(i + 1)} / ${pad(TOTAL_STOPS)}<i>·</i>${esc(st.name.toUpperCase())}`;
+  document.getElementById('pext').href = st.url;
+  document.getElementById('pnext').textContent = i === TOTAL_STOPS - 1 ? 'CERRAR RECORRIDO →' : 'SIGUIENTE PARADA →';
+  pguide.innerHTML = `<b class="t">GUION DE LA DEMO</b>` + st.demo.map((d, k) => `<div><i>${k + 1}</i><span>${esc(d)}</span></div>`).join('');
+  pguide.classList.remove('on');
+  pageEl.classList.add('on'); document.body.classList.add('inpage'); pageOpen = i;
+  history.replaceState(null, '', '#/' + (cur + 1) + '/pagina');
+}
+function exitPage() {
+  if (pageOpen < 0) return; pageEl.classList.remove('on'); document.body.classList.remove('inpage'); pageOpen = -1;
+  history.replaceState(null, '', '#/' + (cur + 1)); if (document.activeElement) document.activeElement.blur(); window.focus();
+}
+document.getElementById('pback').onclick = exitPage;
+document.getElementById('pguion').onclick = () => pguide.classList.toggle('on');
+document.getElementById('pnext').onclick = () => { const i = pageOpen; exitPage(); const k = slides.findIndex((x) => x.dataset.stop == i + 1); go(k >= 0 ? k : N - 1); };
+slides.forEach((sl) => {
+  sl.querySelectorAll('[data-enter]').forEach((b) => b.onclick = () => enterPage(+b.dataset.enter));
+  const img = sl.querySelector('.bv img'); if (img) img.onclick = () => enterPage(+sl.dataset.stop);
+});
+
 /* Navegación */
 function go(n) {
   if (n < 0 || n >= N || n === cur && slides[cur].classList.contains('active')) return;
+  if (pageOpen >= 0) exitPage();
   cur = n;
   slides.forEach((s, i) => { s.classList.toggle('active', i === cur); s.classList.toggle('past', i < cur); });
   setChrome(slides[cur]);
@@ -358,7 +414,9 @@ const next = () => go(cur + 1), prev = () => go(cur - 1);
 document.getElementById('next').onclick = next; document.getElementById('prev').onclick = prev;
 document.querySelectorAll('[data-go-stop]').forEach((r) => r.onclick = () => go(slides.findIndex((s) => s.dataset.stop == r.dataset.goStop)));
 addEventListener('keydown', (e) => {
-  if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
+  if (pageOpen >= 0) { if (e.key === 'Escape') exitPage(); else if (e.key === 'g' || e.key === 'G') pguide.classList.toggle('on'); return; }
+  if (['Enter', 'ArrowDown'].includes(e.key) && slides[cur].dataset.demo) { e.preventDefault(); enterPage(+slides[cur].dataset.stop); return; }
+  if (['ArrowRight', 'PageDown', ' ', 'Enter', 'ArrowDown'].includes(e.key)) { e.preventDefault(); next(); }
   else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
   else if (e.key === 'Home') go(0); else if (e.key === 'End') go(N - 1);
   else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
@@ -374,8 +432,10 @@ const stage = document.getElementById('stage');
 function fit() { const s = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transform = `translate(${(innerWidth - 1920 * s) / 2}px,${(innerHeight - 1080 * s) / 2}px) scale(${s})`; }
 addEventListener('resize', fit); fit();
 
+const wantPage = /#\/\d+\/pagina/.test(location.hash);
 const start = parseInt((location.hash.match(/#\/(\d+)/) || [])[1], 10);
 go(Number.isFinite(start) ? Math.min(Math.max(start - 1, 0), N - 1) : 0);
+if (wantPage && slides[cur].dataset.demo) enterPage(+slides[cur].dataset.stop);
 setTimeout(() => { const h = document.getElementById('hint'); if (h) h.style.opacity = 0; }, 5000);
 if (cur === 0) document.getElementById('hint').style.opacity = 1;
 </script>

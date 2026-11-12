@@ -215,4 +215,19 @@ Object.assign(STOPS[1], {
 for (const st of STOPS.slice(2)) st.aportaTitle = "Lo que aporta";
 
 const { presentationUrl } = require("./config.json");
-module.exports = { TOTAL_STOPS, ROUTE, STOPS, presentationUrl };
+// Parte el nombre del destino en líneas de hasta `max` letras para el tablero de salidas
+function flapLines(name, max = 20) {
+  const lines = []; let cur = "";
+  for (const w of name.toUpperCase().split(" ")) {
+    const t = (cur ? cur + " " : "") + w;
+    if (t.length <= max) cur = t; else { lines.push(cur); cur = w; }
+  }
+  lines.push(cur); return lines;
+}
+STOPS.forEach((st, i) => {
+  st.prev = i === 0 ? null : ROUTE[i - 1].name;
+  st.notes.destino = i === 0
+    ? `Cambio de destino: salimos del itinerario hacia ${st.name} (puerta ${st.gate}).`
+    : `Cambio de destino: cerramos ${ROUTE[i - 1].name} y pasamos a ${st.name} (puerta ${st.gate}).`;
+});
+module.exports = { TOTAL_STOPS, ROUTE, STOPS, presentationUrl, flapLines };

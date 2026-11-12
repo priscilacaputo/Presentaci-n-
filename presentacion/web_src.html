@@ -153,6 +153,21 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--text);font-fam
 .slide:not(.active) .br .bar{width:0}
 .foot2{position:absolute;left:72px;top:936px;font-family:var(--mono);font-size:20px;color:var(--muted)}
 
+/* ── Cambio de destino ── */
+.dep .tag{position:absolute;left:0;right:0;top:175px;text-align:center;font-family:var(--mono);font-size:32px;letter-spacing:.22em;font-weight:700;color:var(--amber)}
+.dep .from{position:absolute;left:0;right:0;top:262px;text-align:center;font-family:var(--mono);font-size:26px;letter-spacing:.1em;color:var(--muted)}
+.dep .from b{color:var(--text);font-weight:700}.dep .from i{font-style:normal;color:var(--green)}
+.flap{position:absolute;left:0;right:0;top:345px;height:270px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.flap .ln{display:flex;gap:7px}
+.fl{width:72px;height:112px;border-radius:9px;border:2px solid var(--line2);background:linear-gradient(#1d252c 50%,#141a1f 50%);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:90px;color:var(--text);position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.fl::after{content:'';position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:#05070a}
+.fl.sp{width:34px;background:none;border:0;box-shadow:none}.fl.sp::after{display:none}
+.fl.flip{animation:flapk .14s linear}
+@keyframes flapk{0%{transform:scaleY(1)}50%{transform:scaleY(.12)}100%{transform:scaleY(1)}}
+.dep .tagline{position:absolute;left:0;right:0;top:650px;text-align:center;font-size:34px;color:var(--muted)}
+.dep .chips{position:absolute;left:0;right:0;top:760px;display:flex;justify-content:center;gap:28px}
+.dep .chip{min-width:330px;text-align:center;padding:20px 34px;border-radius:16px;background:var(--panel);border:2px solid var(--line2);font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:.06em}
+.dep .chip.g{color:var(--amber)}
 /* ── Demo ── */
 .browser{position:absolute;left:72px;top:215px;width:1215px;height:730px;border-radius:18px;background:var(--panel);border:3px solid var(--line2);overflow:hidden;display:flex;flex-direction:column}
 .bt{flex:0 0 62px;display:flex;align-items:center;gap:16px;padding:0 22px;background:#1B2229}
@@ -268,6 +283,21 @@ function itinerary() {
     <div class="board"><div class="row head"><span>N°</span><span>DESTINO</span><span>DESTACADO</span><span>PUERTA</span><span>ESTADO</span></div>${rows}</div></section>`;
 }
 
+function flapLines(name, max) {
+  const lines = []; let cur = '';
+  name.toUpperCase().split(' ').forEach((w) => { const t = (cur ? cur + ' ' : '') + w; if (t.length <= max) cur = t; else { lines.push(cur); cur = w; } });
+  lines.push(cur); return lines;
+}
+function depart(st) {
+  const lines = flapLines(st.name, 20).map((ln) => `<div class="ln">${[...ln].map((c) => c === ' ' ? '<span class="fl sp"></span>' : `<span class="fl" data-c="${c}">${c}</span>`).join('')}</div>`).join('');
+  return `<section class="slide dep" data-stop="${st.idx}" data-chrome="stop" data-status="CAMBIO DE DESTINO" data-color="amber">
+    <div class="tag"><span class="dot">●</span> CAMBIO DE DESTINO</div>
+    <div class="from">${st.prev ? `DESDE <b>${esc(st.prev.toUpperCase())}</b> · <i>ABORDADA ✓</i>` : 'DESDE <b>ITINERARIO</b>'}</div>
+    <div class="flap" aria-label="${esc(st.name)}">${lines}</div>
+    <div class="tagline rise" style="--i:6">${esc(st.tagline)}</div>
+    <div class="chips"><div class="chip rise" style="--i:7">PARADA ${pad(st.idx + 1)} / ${pad(TOTAL_STOPS)}</div><div class="chip g rise" style="--i:8">PUERTA ${st.gate}</div><div class="chip rise" style="--i:9">VUELO ${st.flight}</div></div></section>`;
+}
+
 function pass(st) {
   const t = st.tiles.map((x, i) => st.cols === 2
     ? `<div class="tile h rise" style="--i:${i + 2}"><div class="circ">${ic(x.icon)}</div><div><h4>${esc(x.title)}</h4><p>${esc(x.desc)}</p></div></div>`
@@ -351,6 +381,7 @@ const html = [cover(), itinerary()];
 notesFor.push('Apertura. Cada herramienta es una parada de un vuelo: primero un pantallazo, después qué aporta o qué mejoró, y por último la página funcionando en vivo.');
 notesFor.push('Itinerario completo: son 7 herramientas del equipo. Se puede hacer clic en cualquier fila para saltar a esa parada.');
 STOPS.forEach((st) => {
+  html.push(depart(st)); notesFor.push(st.notes.destino);
   html.push(pass(st)); notesFor.push(st.notes.pantallazo);
   html.push(st.kind === 'compare' ? compare(st) : aporta(st)); notesFor.push(st.notes.mejoras);
   html.push(demo(st)); notesFor.push(st.notes.demo);
@@ -384,6 +415,22 @@ function setChrome(s) {
     plane.style.left = xs[i] + 'px'; doneBar.style.width = (xs[i] - xs[0]) + 'px';
     stopEls.forEach((e, k) => e.classList.toggle('on', k < i));
   }
+}
+
+/* Tablero de salidas: las letras giran hasta quedar en el nuevo destino */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function flipIn(sl) {
+  sl.querySelectorAll('.fl[data-c]').forEach((t, i) => {
+    clearInterval(t._iv); if (reduced) { t.textContent = t.dataset.c; return; }
+    let el = 0; const end = 600 + i * 70;
+    t._iv = setInterval(() => {
+      el += 70;
+      if (el >= end) { clearInterval(t._iv); t.textContent = t.dataset.c; }
+      else t.textContent = ABC[Math.random() * ABC.length | 0];
+      t.classList.remove('flip'); void t.offsetWidth; t.classList.add('flip');
+    }, 70);
+  });
 }
 
 /* Itinerario: refleja por dónde vas (abordada / en curso / próxima) */
@@ -443,6 +490,7 @@ function go(n) {
   const sd = slides[cur].dataset.stop; if (sd !== undefined) reached = Math.max(reached, +sd); if (cur === N - 1) reached = TOTAL_STOPS;
   updateItin();
   setChrome(slides[cur]);
+  if (slides[cur].classList.contains('dep')) flipIn(slides[cur]);
   const s = slides[cur]; if (s.dataset.demo && s.querySelector('.bv.live')) setView(s, 'live');
   document.getElementById('count').textContent = `${pad(cur + 1)} / ${pad(N)}`;
   document.getElementById('notes').innerHTML = `<b>NOTAS</b>${esc(notesFor[cur])}`;

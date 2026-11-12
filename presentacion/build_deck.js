@@ -33,7 +33,7 @@ const THEME = {
 };
 
 // ───────────── Contenido ─────────────
-const { TOTAL_STOPS, ROUTE, STOPS, presentationUrl: PRES_URL } = require("./data.js");
+const { TOTAL_STOPS, ROUTE, STOPS, presentationUrl: PRES_URL, flapLines } = require("./data.js");
 
 // ───────────── Íconos ─────────────
 const iconCache = {};
@@ -142,6 +142,38 @@ async function slideItinerary(pres) {
     else pill(s, "PROGRAMADA", cols.st, y + 0.1, 1.95, GRAY, `Estado fila ${i + 1}`);
   }
   s.addNotes("Mostrar el itinerario completo: son 7 herramientas del equipo. En cada parada vemos primero un pantallazo, después qué aporta o qué mejoró, y por último la página funcionando.");
+}
+
+// Slide de "cambio de destino": tablero de salidas con el nuevo destino en letras de tablero
+async function slideDepart(pres, st) {
+  const s = base(pres, st.name);
+  const n = String(st.idx + 1).padStart(2, "0");
+  await header(s, `PARADA ${n} / ${String(TOTAL_STOPS).padStart(2, "0")}  ·  PUERTA ${st.gate}`, "CAMBIO DE DESTINO", AMBER);
+  mono(s, "●  CAMBIO DE DESTINO", 0.5, 1.15, 12.33, 0.4, { align: "center", color: AMBER, bold: true, fontSize: 20, charSpacing: 4 });
+  mono(s, st.prev ? `DESDE  ${st.prev.toUpperCase()}  ·  ABORDADA` : "DESDE  ITINERARIO", 0.5, 1.75, 12.33, 0.35, { align: "center", color: MUTED, fontSize: 14, charSpacing: 1 });
+  const lines = flapLines(st.name), tw = 0.5, th = 0.8, gap = 0.06, sp = 0.28;
+  const y0 = lines.length === 1 ? 2.85 : 2.4;
+  lines.forEach((ln, r) => {
+    const widths = [...ln].map((c) => (c === " " ? sp : tw));
+    const total = widths.reduce((a, b) => a + b, 0) + gap * (widths.length - 1);
+    let x = (13.333 - total) / 2; const y = y0 + r * (th + 0.14);
+    [...ln].forEach((c, k) => {
+      if (c !== " ") {
+        s.addText(c, { shape: "roundRect", rectRadius: 0.06, x, y, w: tw, h: th, fill: { color: "1B2229" }, line: { color: LINE2, width: 1 }, fontFace: MONO, fontSize: 40, bold: true, color: TEXT, align: "center", valign: "middle", margin: 0, objectName: `Letra ${c}` });
+        s.addShape("line", { x, y: y + th / 2, w: tw, h: 0, line: { color: INK, width: 1.5 }, objectName: "Línea del tablero" });
+      }
+      x += widths[k] + gap;
+    });
+  });
+  sans(s, st.tagline, 1.5, 4.6, 10.33, 0.5, { fontSize: 18, color: MUTED, align: "center" });
+  const chips = [[`PARADA ${n} / ${String(TOTAL_STOPS).padStart(2, "0")}`, TEXT], [`PUERTA ${st.gate}`, AMBER], [`VUELO ${st.flight}`, TEXT]];
+  chips.forEach(([t, c], i) => {
+    const w = 2.5, x = (13.333 - (w * 3 + 0.3 * 2)) / 2 + i * (w + 0.3);
+    s.addShape("roundRect", { x, y: 5.5, w, h: 0.55, rectRadius: 0.1, fill: { color: PANEL }, line: { color: LINE2, width: 1 }, objectName: `Dato ${i + 1}` });
+    mono(s, t, x, 5.5, w, 0.55, { align: "center", bold: true, color: c, fontSize: 14, charSpacing: 1 });
+  });
+  await tracker(s, st.idx);
+  s.addNotes(st.notes.destino);
 }
 
 // Tarjeta de embarque = pantallazo de la herramienta
@@ -376,13 +408,16 @@ async function slideClose(pres) {
 
   await slideCover(pres);
   await slideItinerary(pres);
+  await slideDepart(pres, STOPS[0]);
   await slidePantallazo(pres, STOPS[0]);
   await slideGrillaMejoras(pres, STOPS[0]);
   await slideDemo(pres, STOPS[0]);
+  await slideDepart(pres, STOPS[1]);
   await slidePantallazo(pres, STOPS[1]);
   await slideTermoMejoras(pres, STOPS[1]);
   await slideDemo(pres, STOPS[1]);
   for (const st of STOPS.slice(2)) {
+    await slideDepart(pres, st);
     await slidePantallazo(pres, st);
     await slideAporta(pres, st);
     await slideDemo(pres, st);

@@ -18,7 +18,7 @@ def gradient(c0, c1, glow, glow_pos, glow_r):
     base = base * (1 - g * 0.55) + np.array(hexc(glow)) * g * 0.55
     return Image.fromarray(base.astype("uint8"))
 
-def dotted_arc(img, p0, p1, p2, n=46, color="8ECB93"):
+def dotted_arc(img, p0, p1, p2, n=46, color="FFFFFF"):
     big = Image.new("RGBA", (W * SS, H * SS), (0, 0, 0, 0))
     dr = ImageDraw.Draw(big)
     for i in range(n + 1):
@@ -31,15 +31,36 @@ def dotted_arc(img, p0, p1, p2, n=46, color="8ECB93"):
     big = big.resize((W, H), Image.LANCZOS)
     img = img.convert("RGBA"); img.alpha_composite(big); return img.convert("RGB")
 
-# Portada: degradé marca + arco de vuelo punteado
-cover = gradient("07161D", "0F5E6B", "8ECB93", (1750, 120), 1100)
-cover = dotted_arc(cover, (760, 1110), (1350, 1020), (1960, 70))
-cover.save(f"{A}/bg_cover.png")
+# Fondos con el degradé oficial de Aeropuertos Argentina (assets/bg_marca.png)
+MARCA = Image.open(os.path.join(A, "bg_marca.png")).convert("RGB").resize((W, H), Image.LANCZOS)
 
-# Cierre: degradé invertido
-close = gradient("0F5E6B", "07161D", "2F86B8", (200, 950), 1200)
-close = dotted_arc(close, (1960, 640), (1560, 90), (1120, -40), color="4FB0E8")
+def overlay(alpha_fn, base=MARCA, color="0B2128"):
+    x = np.linspace(0, 1, W)[None, :].repeat(H, 0)
+    y = np.linspace(0, 1, H)[:, None].repeat(W, 1)
+    a = np.clip(alpha_fn(x, y), 0, 1)[..., None]
+    out = np.array(base, dtype=float) * (1 - a) + np.array(hexc(color), dtype=float) * a
+    return Image.fromarray(out.astype("uint8"))
+
+# Portada y cierre: oscuro a la izquierda (texto) y degradé de marca a la derecha (ticket)
+cover = overlay(lambda x, y: 0.86 - 0.62 * x)
+cover = dotted_arc(cover, (760, 1110), (1350, 1020), (1960, 70), color="FFFFFF")
+cover.save(f"{A}/bg_cover.png")
+close = overlay(lambda x, y: 0.86 - 0.62 * x)
+close = dotted_arc(close, (1960, 640), (1560, 90), (1120, -40), color="FFFFFF")
 close.save(f"{A}/bg_close.png")
+# Cambio de destino: degradé de marca con velo parejo para que el tablero destaque
+overlay(lambda x, y: 0.50 + 0 * x).save(f"{A}/bg_dep.png")
+
+# Fondo de contenido: azul petróleo con luces de marca (azul, turquesa y verde)
+def glow(img, cx, cy, r, color, k):
+    y, x = np.mgrid[0:H, 0:W]
+    g = np.clip(1 - np.sqrt((x - cx) ** 2 + (y - cy) ** 2) / r, 0, 1)[..., None] ** 1.6 * k
+    return img * (1 - g) + np.array(hexc(color), dtype=float) * g
+base = np.ones((H, W, 3)) * np.array(hexc("0B2128"), dtype=float)
+base = glow(base, 0, 0, 1500, "2A74B5", 0.42)
+base = glow(base, W, H, 1400, "14B3A6", 0.34)
+base = glow(base, W, 0, 1100, "A7CE75", 0.16)
+Image.fromarray(base.astype("uint8")).save(f"{A}/bg_contenido.png")
 
 # Códigos de barras
 def barcode(path, color, seed=7):
@@ -50,8 +71,8 @@ def barcode(path, color, seed=7):
         w = rnd.choice([3, 3, 6, 9, 12]); gap = rnd.choice([4, 6, 9])
         d.rectangle([x, 0, x + w, 120], fill=hexc(color) + (255,)); x += w + gap
     im.save(path)
-barcode(f"{A}/barcode_claro.png", "EDEFF1")
-barcode(f"{A}/barcode_oscuro.png", "0A0D10", seed=11)
+barcode(f"{A}/barcode_claro.png", "F2F7F8")
+barcode(f"{A}/barcode_oscuro.png", "0B2128", seed=11)
 
 # QR a las páginas reales
 for name, url in [("grilla", "https://grilla-inteligente-termo.vercel.app/"),
@@ -61,8 +82,8 @@ for name, url in [("grilla", "https://grilla-inteligente-termo.vercel.app/"),
                   ("recorrida", "https://recorrida-f778.vercel.app/"),
                   ("techo", "https://filtraciones-infra.vercel.app/"),
                   ("pista", "https://infra-lado-pista.vercel.app/")]:
-    segno.make(url, error="m").save(f"{A}/qr_{name}.png", scale=12, border=2, dark="0A0D10", light="FFFFFF")
+    segno.make(url, error="m").save(f"{A}/qr_{name}.png", scale=12, border=2, dark="0B2128", light="FFFFFF")
 import json
 cfg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")))
-segno.make(cfg["presentationUrl"], error="m").save(f"{A}/qr_presentacion.png", scale=12, border=1, dark="0A0D10", light="F3F7F8")
+segno.make(cfg["presentationUrl"], error="m").save(f"{A}/qr_presentacion.png", scale=12, border=1, dark="0B2128", light="F3F7F8")
 print("ok")

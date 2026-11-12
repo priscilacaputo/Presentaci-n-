@@ -10,7 +10,7 @@ const fa = require("react-icons/fa");
 const data = require("./data.js");
 
 // Íconos usados: los de los datos + los fijos de la plantilla
-const names = new Set(["FaPlane", "FaArrowRight", "FaExternalLinkAlt", "FaClipboardCheck", "FaChartLine", "FaCalendarAlt"]);
+const names = new Set(["FaPlane", "FaArrowRight", "FaExternalLinkAlt", "FaClipboardCheck", "FaChartLine", "FaCalendarAlt", "FaVolumeUp", "FaPlaneDeparture"]);
 for (const st of data.STOPS) {
   (st.tiles || []).forEach((t) => names.add(t.icon));
   (st.adv || []).forEach((a) => names.add(a[0]));

@@ -20,16 +20,17 @@ const A = (f) => path.join(__dirname, "assets", f);
 const OUT = path.join(__dirname, "Presentacion_Mantenimiento_AEP.pptx");
 
 // ───────────── Paleta (la misma del hub de salidas) ─────────────
-const INK = "0A0D10", PANEL = "12171B", PANEL2 = "171D22", LINE = "232B31", LINE2 = "3A444C";
-const AMBER = "FFB020", BLUE = "4FB0E8", GREEN = "35C97A", MINT = "8ECB93", BRAND = "2F86B8";
-const TEXT = "EDEFF1", MUTED = "8A94A0", GRAY = "6E7A85";
+// Paleta de Aeropuertos Argentina (tema del deck original) + ámbar de tablero y amarillo de cartelería
+const INK = "0B2128", PANEL = "112F38", PANEL2 = "163A45", LINE = "235561", LINE2 = "3B7783";
+const AMBER = "A7CE75", LED = "FFB020", SIGN = "FFC72C", BLUE = "5BB5E6", GREEN = "2CC9A8", MINT = "8FD3B8", BRAND = "2A74B5";
+const TEXT = "F2F7F8", MUTED = "9CB9BF", GRAY = "7E8E93";
 const HEAD = "Arial", BODY = "Arial", MONO = "Courier New";
 
 const THEME = {
   name: "Mantenimiento AEP — Salidas",
   headFontFace: HEAD, bodyFontFace: BODY,
   colors: { dk1: INK, lt1: TEXT, dk2: PANEL, lt2: MUTED, accent1: AMBER, accent2: BLUE, accent3: GREEN,
-            accent4: MINT, accent5: BRAND, accent6: "E8664F", hlink: BLUE, folHlink: MUTED },
+            accent4: MINT, accent5: BRAND, accent6: "238B96", hlink: BLUE, folHlink: MUTED },
 };
 
 // ───────────── Contenido ─────────────
@@ -63,9 +64,14 @@ async function header(s, left, status, statusColor) {
   if (status) pill(s, "●  " + status, 10.43, 0.38, 2.4, statusColor, "Estado de la parada");
 }
 
+function logoCorner(s) {
+  s.addImage({ path: A("logo_blanco.png"), x: 11.95, y: 6.62, w: 0.8, h: 0.68, altText: "Logo Aeropuertos Argentina", objectName: "Logo" });
+}
+
 async function tracker(s, cur) {
-  const xs = Array.from({ length: TOTAL_STOPS }, (_, i) => 2.5 + (i * (12.6 - 2.5)) / (TOTAL_STOPS - 1));
+  const xs = Array.from({ length: TOTAL_STOPS }, (_, i) => 2.5 + (i * (11.3 - 2.5)) / (TOTAL_STOPS - 1));
   const y = 7.0;
+  logoCorner(s);
   mono(s, "RUTA MANT-AEP", 0.5, y - 0.15, 1.8, 0.3, { fontSize: 10, charSpacing: 1 });
   s.addShape("line", { x: xs[0], y, w: xs[6] - xs[0], h: 0, line: { color: LINE2, width: 1.5, dashType: "dash" }, objectName: "Ruta pendiente" });
   if (cur > 0) s.addShape("line", { x: xs[0], y, w: xs[cur] - xs[0], h: 0, line: { color: GREEN, width: 2 }, objectName: "Ruta recorrida" });
@@ -78,7 +84,7 @@ async function tracker(s, cur) {
   }
 }
 
-const base = (pres, section) => { const s = pres.addSlide({ sectionTitle: section }); s.background = { color: INK }; return s; };
+const base = (pres, section) => { const s = pres.addSlide({ sectionTitle: section }); s.background = { path: A("bg_contenido.png") }; return s; };
 
 // ───────────── Slides ─────────────
 async function slideCover(pres) {
@@ -123,6 +129,7 @@ async function slideCover(pres) {
 async function slideItinerary(pres) {
   const s = base(pres, "Embarque");
   await header(s, "SALIDAS · DEPARTURES", null);
+  logoCorner(s);
   mono(s, "NOVIEMBRE 2026", 10.43, 0.38, 2.4, 0.36, { align: "right", color: AMBER, fontSize: 12, bold: true });
   sans(s, "Itinerario de vuelo", 0.5, 0.85, 8, 0.7, { fontSize: 34, bold: true, fontFace: HEAD });
   sans(s, "Siete paradas, un solo recorrido.", 0.5, 1.5, 8, 0.4, { fontSize: 16, color: MUTED });
@@ -137,41 +144,62 @@ async function slideItinerary(pres) {
     mono(s, String(i + 1).padStart(2, "0"), cols.n, y, 0.6, rowH, { color: live ? AMBER : MUTED, fontSize: 14 });
     mono(s, r.name.toUpperCase(), cols.dest, y, 5.0, rowH, { color: live ? TEXT : MUTED, fontSize: 15, bold: true });
     mono(s, r.highlight || "—", cols.hl, y, 3.4, rowH, { color: live ? MINT : LINE2, fontSize: 11 });
-    mono(s, r.gate, cols.gate, y, 1, rowH, { color: live ? AMBER : MUTED, fontSize: 15, bold: true });
-    if (live) pill(s, i === 0 ? "EMBARCANDO" : "PRÓXIMA", cols.st, y + 0.1, 1.95, i === 0 ? AMBER : BLUE, `Estado fila ${i + 1}`);
+    mono(s, r.gate, cols.gate, y, 1, rowH, { color: live ? LED : MUTED, fontSize: 15, bold: true });
+    if (live) pill(s, i === 0 ? "EMBARCANDO" : "PRÓXIMA", cols.st, y + 0.1, 1.95, i === 0 ? LED : BLUE, `Estado fila ${i + 1}`);
     else pill(s, "PROGRAMADA", cols.st, y + 0.1, 1.95, GRAY, `Estado fila ${i + 1}`);
   }
   s.addNotes("Mostrar el itinerario completo: son 7 herramientas del equipo. En cada parada vemos primero un pantallazo, después qué aporta o qué mejoró, y por último la página funcionando.");
 }
 
-// Slide de "cambio de destino": tablero de salidas con el nuevo destino en letras de tablero
+// Slide de "cambio de destino": cartel de puerta, aviso a pasajeros y tablero de salidas
 async function slideDepart(pres, st) {
-  const s = base(pres, st.name);
-  const n = String(st.idx + 1).padStart(2, "0");
-  await header(s, `PARADA ${n} / ${String(TOTAL_STOPS).padStart(2, "0")}  ·  PUERTA ${st.gate}`, "CAMBIO DE DESTINO", AMBER);
-  mono(s, "●  CAMBIO DE DESTINO", 0.5, 1.15, 12.33, 0.4, { align: "center", color: AMBER, bold: true, fontSize: 20, charSpacing: 4 });
-  mono(s, st.prev ? `DESDE  ${st.prev.toUpperCase()}  ·  ABORDADA` : "DESDE  ITINERARIO", 0.5, 1.75, 12.33, 0.35, { align: "center", color: MUTED, fontSize: 14, charSpacing: 1 });
-  const lines = flapLines(st.name), tw = 0.5, th = 0.8, gap = 0.06, sp = 0.28;
-  const y0 = lines.length === 1 ? 2.85 : 2.4;
+  const s = pres.addSlide({ sectionTitle: st.name }); s.background = { path: A("bg_dep.png") };
+  const n = String(st.idx + 1).padStart(2, "0"), tot = String(TOTAL_STOPS).padStart(2, "0");
+  const code = `MANT-${n}`;
+  await header(s, `PARADA ${n} / ${tot}`, "CAMBIO DE DESTINO", LED);
+  // Cartel de puerta (amarillo de cartelería aeroportuaria)
+  s.addShape("roundRect", { x: 0.5, y: 1.0, w: 3.7, h: 1.1, rectRadius: 0.12, fill: { color: SIGN }, line: { color: SIGN }, shadow: { type: "outer", color: "000000", opacity: 0.35, blur: 12, offset: 4, angle: 90 }, objectName: "Cartel de puerta" });
+  s.addImage({ data: await icon("FaPlaneDeparture", "14181B"), x: 0.72, y: 1.33, w: 0.45, h: 0.45, altText: "Salida" });
+  sans(s, "PUERTA\nGATE", 1.27, 1.22, 0.9, 0.66, { fontSize: 11, bold: true, color: "14181B", valign: "middle" });
+  sans(s, st.gate, 2.08, 1.0, 1.2, 1.1, { fontSize: 50, bold: true, color: "14181B", valign: "middle" });
+  s.addImage({ data: await icon("FaArrowRight", "14181B"), x: 3.35, y: 1.32, w: 0.5, h: 0.46, altText: "Dirección" });
+  // Aviso a pasajeros
+  s.addShape("roundRect", { x: 4.45, y: 1.0, w: 8.38, h: 1.1, rectRadius: 0.12, fill: { color: "082129", transparency: 10 }, line: { color: "FFFFFF", transparency: 78, width: 1 }, objectName: "Aviso a pasajeros" });
+  s.addImage({ data: await icon("FaVolumeUp", LED), x: 4.72, y: 1.35, w: 0.42, h: 0.4, altText: "Aviso sonoro" });
+  mono(s, "AVISO A PASAJEROS  ·  CAMBIO DE DESTINO", 5.4, 1.1, 7.2, 0.25, { fontSize: 9, charSpacing: 1 });
+  const b = { bold: true, color: LED };
+  sans(s, [{ text: "Atención pasajeros: el vuelo " }, { text: code, options: b }, { text: " con destino a " }, { text: st.name, options: b }, { text: " está embarcando por la " }, { text: `puerta ${st.gate}`, options: b }, { text: "." }], 5.4, 1.38, 7.2, 0.68, { fontSize: 15, valign: "top" });
+  // Tablero de salidas
+  const prev = st.idx > 0 ? ROUTE[st.idx - 1] : null, next = ROUTE.slice(st.idx + 1, st.idx + 4);
+  const cx = { f: 0.85, d: 3.0, g: 10.1, e: 11.0 };
+  s.addShape("roundRect", { x: 0.5, y: 2.35, w: 12.33, h: 4.2, rectRadius: 0.12, fill: { color: "05181F", transparency: 6 }, line: { color: LINE2, width: 1 }, objectName: "Tablero de salidas" });
+  [["VUELO", cx.f], ["DESTINO", cx.d], ["PUERTA", cx.g], ["ESTADO", cx.e]].forEach(([t, x]) => mono(s, t, x, 2.45, 2, 0.28, { fontSize: 9, charSpacing: 1 }));
+  let y = 2.8;
+  const srow = (idx, y0, done) => {
+    const r = ROUTE[idx];
+    mono(s, `MANT-${String(idx + 1).padStart(2, "0")}`, cx.f, y0, 2, 0.5, { fontSize: 12, color: MUTED });
+    mono(s, r.name.toUpperCase(), cx.d, y0, 6.8, 0.5, { fontSize: 13, bold: true, color: done ? MUTED : TEXT, strike: done ? "sngStrike" : undefined });
+    mono(s, r.gate, cx.g, y0, 0.8, 0.5, { fontSize: 14, bold: true, color: LED });
+    pill(s, done ? "ABORDADA ✓" : "PRÓXIMA", cx.e, y0 + 0.07, 1.6, done ? GREEN : BLUE, `Estado ${r.name}`);
+  };
+  if (prev) { srow(st.idx - 1, y, true); y += 0.55; }
+  // Fila del destino actual con letras de tablero
+  const ch = 1.4;
+  s.addShape("roundRect", { x: 0.7, y, w: 11.93, h: ch, rectRadius: 0.1, fill: { color: LED, transparency: 90 }, line: { color: LED, width: 1.5 }, objectName: "Destino actual" });
+  const tile = (c, x, yy, w, h, fs) => {
+    s.addText(c, { shape: "roundRect", rectRadius: 0.05, x, y: yy, w, h, fill: { color: "1C4350" }, line: { color: LINE2, width: 0.75 }, fontFace: MONO, fontSize: fs, bold: true, color: TEXT, align: "center", valign: "middle", margin: 0, objectName: `Letra ${c}` });
+    s.addShape("line", { x, y: yy + h / 2, w, h: 0, line: { color: "03161B", width: 1.25 }, objectName: "Línea del tablero" });
+  };
+  let fx = cx.f; [...code].forEach((c) => { tile(c, fx, y + (ch - 0.42) / 2, 0.25, 0.42, 15); fx += 0.28; });
+  const lines = flapLines(st.name), th = 0.52, lg = 0.08, blockH = lines.length * th + (lines.length - 1) * lg;
   lines.forEach((ln, r) => {
-    const widths = [...ln].map((c) => (c === " " ? sp : tw));
-    const total = widths.reduce((a, b) => a + b, 0) + gap * (widths.length - 1);
-    let x = (13.333 - total) / 2; const y = y0 + r * (th + 0.14);
-    [...ln].forEach((c, k) => {
-      if (c !== " ") {
-        s.addText(c, { shape: "roundRect", rectRadius: 0.06, x, y, w: tw, h: th, fill: { color: "1B2229" }, line: { color: LINE2, width: 1 }, fontFace: MONO, fontSize: 40, bold: true, color: TEXT, align: "center", valign: "middle", margin: 0, objectName: `Letra ${c}` });
-        s.addShape("line", { x, y: y + th / 2, w: tw, h: 0, line: { color: INK, width: 1.5 }, objectName: "Línea del tablero" });
-      }
-      x += widths[k] + gap;
-    });
+    let x = cx.d; const yy = y + (ch - blockH) / 2 + r * (th + lg);
+    [...ln].forEach((c) => { if (c === " ") x += 0.2; else { tile(c, x, yy, 0.31, th, 22); x += 0.345; } });
   });
-  sans(s, st.tagline, 1.5, 4.6, 10.33, 0.5, { fontSize: 18, color: MUTED, align: "center" });
-  const chips = [[`PARADA ${n} / ${String(TOTAL_STOPS).padStart(2, "0")}`, TEXT], [`PUERTA ${st.gate}`, AMBER], [`VUELO ${st.flight}`, TEXT]];
-  chips.forEach(([t, c], i) => {
-    const w = 2.5, x = (13.333 - (w * 3 + 0.3 * 2)) / 2 + i * (w + 0.3);
-    s.addShape("roundRect", { x, y: 5.5, w, h: 0.55, rectRadius: 0.1, fill: { color: PANEL }, line: { color: LINE2, width: 1 }, objectName: `Dato ${i + 1}` });
-    mono(s, t, x, 5.5, w, 0.55, { align: "center", bold: true, color: c, fontSize: 14, charSpacing: 1 });
-  });
+  mono(s, st.gate, cx.g, y, 0.9, ch, { fontSize: 30, bold: true, color: LED });
+  pill(s, "●  EMBARCANDO", cx.e - 0.1, y + (ch - 0.36) / 2, 1.55, LED, "Estado actual");
+  y += ch + 0.1;
+  next.forEach((r, k) => { srow(st.idx + 1 + k, y, false); y += 0.55; });
   await tracker(s, st.idx);
   s.addNotes(st.notes.destino);
 }
@@ -179,7 +207,7 @@ async function slideDepart(pres, st) {
 // Tarjeta de embarque = pantallazo de la herramienta
 async function slidePantallazo(pres, st) {
   const s = base(pres, st.name);
-  await header(s, `PARADA ${String(st.idx + 1).padStart(2, "0")} / ${String(TOTAL_STOPS).padStart(2, "0")}  ·  PUERTA ${st.gate}`, "EMBARCANDO", AMBER);
+  await header(s, `PARADA ${String(st.idx + 1).padStart(2, "0")} / ${String(TOTAL_STOPS).padStart(2, "0")}  ·  PUERTA ${st.gate}`, "EMBARCANDO", LED);
   const cx = 0.5, cy = 0.95, cw = 12.33, ch = 5.6, sx = 9.6;
   s.addShape("roundRect", { x: cx, y: cy, w: cw, h: ch, rectRadius: 0.15, fill: { color: PANEL }, line: { color: LINE, width: 1 }, objectName: "Tarjeta de embarque" });
   s.addShape("line", { x: sx, y: cy + 0.3, w: 0, h: ch - 0.6, line: { color: LINE2, width: 1.25, dashType: "dash" }, objectName: "Perforado" });
@@ -220,7 +248,7 @@ async function slidePantallazo(pres, st) {
     mono(s, k, tx, y, tw2, 0.22, { fontSize: 10, charSpacing: 1 });
     mono(s, v, tx, y + 0.24, tw2, 0.5, { fontSize: size, bold: true, color });
   };
-  field("PUERTA", st.gate, 1.4, AMBER, 36);
+  field("PUERTA", st.gate, 1.4, LED, 36);
   field("ESTADO", "EMBARCANDO", 2.5, GREEN, 16);
   field("VUELO", st.flight, 3.35, TEXT, 20);
   mono(s, "DESTINO WEB", tx, 4.25, tw2, 0.22, { fontSize: 10, charSpacing: 1 });
@@ -345,7 +373,7 @@ async function slideDemo(pres, st) {
   const bx = 0.5, by = 1.7, bw = 8.4, bh = 4.85, chrome = 0.42;
   s.addShape("roundRect", { x: bx, y: by, w: bw, h: bh, rectRadius: 0.12, fill: { color: PANEL }, line: { color: LINE2, width: 1.25 }, objectName: "Marco del navegador" });
   s.addShape("rect", { x: bx + 0.04, y: by + 0.04, w: bw - 0.08, h: chrome - 0.04, fill: { color: "1B2229" }, line: { color: "1B2229" }, objectName: "Barra del navegador" });
-  [["E8664F", 0.22], [AMBER, 0.42], [GREEN, 0.62]].forEach(([c, dx], i) => s.addShape("ellipse", { x: bx + dx, y: by + 0.14, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c }, objectName: `Control ${i + 1}` }));
+  [["E8664F", 0.22], [LED, 0.42], [GREEN, 0.62]].forEach(([c, dx], i) => s.addShape("ellipse", { x: bx + dx, y: by + 0.14, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c }, objectName: `Control ${i + 1}` }));
   s.addShape("roundRect", { x: bx + 1.0, y: by + 0.08, w: bw - 2.0, h: 0.28, rectRadius: 0.14, fill: { color: INK }, line: { color: LINE }, objectName: "Barra de dirección" });
   mono(s, st.urlShort, bx + 1.2, by + 0.08, bw - 2.4, 0.28, { fontSize: 11, color: MUTED });
   const ix = bx + 0.1, iy = by + chrome + 0.06, iw = bw - 0.2, ih = bh - chrome - 0.16;

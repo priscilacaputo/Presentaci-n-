@@ -55,6 +55,11 @@ barcode(f"{A}/barcode_oscuro.png", "0A0D10", seed=11)
 
 # QR a las páginas reales
 for name, url in [("grilla", "https://grilla-inteligente-termo.vercel.app/"),
-                  ("termo", "https://web-termo.vercel.app/")]:
+                  ("termo", "https://web-termo.vercel.app/"),
+                  ("bhs", "https://patio-de-valijas-aep.vercel.app/"),
+                  ("hvac", "https://hvacsetpoint.vercel.app/"),
+                  ("recorrida", "https://recorrida-f778.vercel.app/"),
+                  ("techo", "https://filtraciones-infra.vercel.app/"),
+                  ("pista", "https://infra-lado-pista.vercel.app/")]:
     segno.make(url, error="m").save(f"{A}/qr_{name}.png", scale=12, border=2, dark="0A0D10", light="FFFFFF")
 print("ok")

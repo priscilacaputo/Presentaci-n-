@@ -37,11 +37,11 @@ const TOTAL_STOPS = 7;
 const ROUTE = [
   { name: "Grilla Inteligente", gate: "A1", highlight: "231 francos gestionados" },
   { name: "Web Termo", gate: "A2", highlight: "+1.000 equipos con ficha" },
-  { name: "Ventanas BHS", gate: "A3" },
-  { name: "Programación Equipos de Aire", gate: "A4" },
-  { name: "Recorrida", gate: "A5" },
-  { name: "Filtraciones de Techo", gate: "A6" },
-  { name: "Infraestructura lado pista", gate: "A7" },
+  { name: "Ventanas BHS", gate: "A3", highlight: "1.935 h de ventanas posibles" },
+  { name: "Programación Equipos de Aire", gate: "A4", highlight: "Setpoints según pronóstico" },
+  { name: "Recorrida", gate: "A5", highlight: "Recorridas de aire y mecánica" },
+  { name: "Filtraciones de Techo", gate: "A6", highlight: "Mapa de calor de incidencias" },
+  { name: "Infraestructura lado pista", gate: "A7", highlight: "PCI por loza (0 a 100)" },
 ];
 
 const STOPS = [
@@ -93,6 +93,130 @@ const STOPS = [
       pantallazo: "Qué es: un portal que reúne en un solo lugar lo que antes estaba repartido en muchas transacciones de SAP (IH08, IP24, IW38, IW49, IA17, MB52). Son 8 herramientas y +1.000 equipos con su ficha. Recorrer las tarjetas rápido, una frase cada una.",
       mejoras: "Resultados medidos con exports de SAP de septiembre y octubre de 2026. Las cargas son una propuesta de nivelación con 150 cambios de plan. Remarcar: gama identificada sola 83 % → 94 %, pico de carga de aire −26 %, pico de carga mecánica −16 %, horas de OTs registradas −27 %.",
       demo: "Pasar al portal en vivo. Recorrido sugerido: una ficha de equipo → planificación del mes → estado y seguimiento → auditor de SAP / pañol.",
+    },
+  },
+  {
+    id: "bhs", idx: 2, name: "Ventanas BHS", gate: "A3", flight: "MANT-03", kind: "aporta",
+    url: "https://patio-de-valijas-aep.vercel.app/", urlShort: "patio-de-valijas-aep.vercel.app",
+    tagline: "Plan Maestro BHS: ventanas operativas propuestas para el patio de valijas",
+    tilesLabel: "QUÉ ENCONTRÁS EN LA PÁGINA", cols: 2,
+    tiles: [
+      { icon: "FaChartBar", title: "Panel de mantenimiento", desc: "Huecos disponibles y mejor ventana para intervenir" },
+      { icon: "FaTasks", title: "Planificador", desc: "Disponibilidad por línea, mostrador y carrusel" },
+      { icon: "FaClipboardList", title: "Órdenes de trabajo", desc: "Cada OT con su ventana operativa propuesta" },
+      { icon: "FaBookOpen", title: "Cómo funciona el BHS", desc: "Base de conocimiento del STE/SATE" },
+    ],
+    statsLabel: "PLAN MAESTRO BHS  ·  DATOS CARGADOS EN LA PÁGINA, SEPTIEMBRE 2026",
+    stats: [["11.234", "vuelos cargados"], ["122", "OTs cargadas, todas con hueco"], ["1.935 h", "de mantenimiento posibles"], ["166 h", "mejor ventana (línea L-200)"]],
+    adv: [
+      ["FaClock", "Ventanas operativas a la vista", "Huecos de 60 min o más detectados en cada línea"],
+      ["FaFlag", "La mejor ventana, identificada", "El hueco más grande del período para intervenir"],
+      ["FaClipboardList", "OTs con hueco recomendado", "Cada orden sale con su ventana propuesta"],
+      ["FaBookOpen", "Conocimiento del sistema a mano", "Consulta del STE/SATE sin bajar el PDF técnico"],
+    ],
+    demo: ["Inicio: huecos y mejor ventana", "Planificador: elegir un día y ver los huecos", "Órdenes de trabajo: ventana propuesta de cada OT", "Cómo funciona el BHS (STE/SATE)"],
+    notes: {
+      pantallazo: "Qué es: el Plan Maestro del patio de valijas (sistema de tratamiento de equipajes). Propone ventanas operativas para hacer mantenimiento sin molestar la operación. Recorrer los cuatro bloques en una frase cada uno.",
+      mejoras: "Cifras tomadas de la página, con los datos cargados de septiembre 2026: 11.234 vuelos, 122 OTs (todas con hueco), 1.935 h de mantenimiento posibles y la mejor ventana en la línea L-200 (166 h 25 min). Si tenés una comparación contra el método anterior, sumala acá.",
+      demo: "Pasar a la página en vivo. Recorrido sugerido: Inicio → Planificador (elegir un día) → Órdenes de trabajo → Funcionamiento del sistema.",
+    },
+  },
+  {
+    id: "hvac", idx: 3, name: "Programación Equipos de Aire", gate: "A4", flight: "MANT-04", kind: "aporta",
+    url: "https://hvacsetpoint.vercel.app/", urlShort: "hvacsetpoint.vercel.app",
+    tagline: "HVAC Setpoint Advisor: recomendaciones automáticas según el pronóstico",
+    tilesLabel: "SEIS SECCIONES EN LA PÁGINA", cols: 3,
+    tiles: [
+      { icon: "FaThermometerHalf", title: "Resumen", desc: "Clima actual, setpoints y pronóstico a 7 días" },
+      { icon: "FaClock", title: "Tabla horaria", desc: "Sugerencias hora por hora, próximas 24 hs" },
+      { icon: "FaCogs", title: "Equipo", desc: "Equipos guardados: unidades piso techo y splits" },
+      { icon: "FaStethoscope", title: "Diagnóstico", desc: "Detección de fallas (AFDD) y estado de filtro" },
+      { icon: "FaSlidersH", title: "Configuración", desc: "Perfiles de setpoints y límites de validación" },
+      { icon: "FaBookOpen", title: "Referencia BMS", desc: "Guía de programación Johnson Metasys" },
+    ],
+    adv: [
+      ["FaCloudSun", "Setpoints según el clima", "Recomendación automática con el pronóstico de Aeroparque"],
+      ["FaClock", "Sugerencias hora por hora", "Tabla para las próximas 24 horas"],
+      ["FaStethoscope", "Diagnóstico de fallas", "Compara el comando con el estado real del equipo"],
+      ["FaSlidersH", "Perfiles por equipo", "Confort, ahorro energético, operación 24/7 y más"],
+    ],
+    demo: ["Resumen: clima actual y setpoints recomendados", "Tabla horaria: sugerencias de las próximas 24 hs", "Diagnóstico: correr el AFDD en un equipo", "Configuración: elegir un perfil de setpoints"],
+    notes: {
+      pantallazo: "Qué es: un asesor que recomienda setpoints de los equipos de aire a partir del pronóstico meteorológico (Open-Meteo, se actualiza cada 15 min). Tiene seis secciones: Resumen, Tabla horaria, Equipo, Diagnóstico, Configuración y Referencia BMS.",
+      mejoras: "Esta parada no tiene cifras de antes/ahora cargadas todavía: las ventajas salen de lo que hace la página. Si tenés ahorro energético o alguna medición, sumala acá.",
+      demo: "Pasar a la página en vivo. Recorrido sugerido: Resumen → Tabla horaria → Diagnóstico (AFDD) → Configuración de perfiles. Falta insertar la captura de pantalla.",
+    },
+  },
+  {
+    id: "recorrida", idx: 4, name: "Recorrida", gate: "A5", flight: "MANT-05", kind: "aporta",
+    url: "https://recorrida-f778.vercel.app/", urlShort: "recorrida-f778.vercel.app",
+    tagline: "Recorridas diarias de Mantenimiento Termomecánica en Aeroparque",
+    tilesLabel: "QUÉ ENCONTRÁS EN LA PÁGINA", cols: 2,
+    tiles: [
+      { icon: "FaPlusCircle", title: "Nueva recorrida", desc: "Elegís el tipo de inspección que vas a hacer" },
+      { icon: "FaWind", title: "Recorrida de aire", desc: "Climatización y ventilación, recorrido verde o celeste" },
+      { icon: "FaCogs", title: "Recorrida mecánica", desc: "Equipos mecánicos, patio de valijas y pozos/bombas" },
+      { icon: "FaHistory", title: "Historial", desc: "Consulta de las recorridas ya realizadas" },
+    ],
+    adv: [
+      ["FaMapMarkedAlt", "Plano de referencia", "Cada recorrido marcado sobre el mapa de AEP"],
+      ["FaWind", "Dos tipos de recorrida", "Aire y mecánica, cada una con su ruta"],
+      ["FaFlag", "Puntos de control claros", "Check Point, Puesto Pampa y límite PSA en el recorrido"],
+      ["FaHistory", "Registro diario con historial", "Las recorridas quedan guardadas para consultar"],
+    ],
+    demo: ["Nueva: elegir el tipo de recorrida", "Plano de referencia: ver la ruta sobre el mapa", "Recorrida de aire: verde o celeste", "Historial: consultar recorridas anteriores"],
+    notes: {
+      pantallazo: "Qué es: la página para registrar las recorridas diarias del equipo, con un plano esquemático de Aeroparque que muestra cada ruta (verde: aire, celeste: aire + mecánico, ámbar: control PSA).",
+      mejoras: "Esta parada no tiene cifras de antes/ahora cargadas todavía: las ventajas salen de lo que hace la página. Si tenés cantidad de recorridas o tiempos, sumalos acá.",
+      demo: "Pasar a la página en vivo. Recorrido sugerido: Nueva → elegir tipo → mirar la ruta en el plano → Historial.",
+    },
+  },
+  {
+    id: "techo", idx: 5, name: "Filtraciones de Techo", gate: "A6", flight: "MANT-06", kind: "aporta",
+    url: "https://filtraciones-infra.vercel.app/", urlShort: "filtraciones-infra.vercel.app",
+    tagline: "Monitoreo de techos de la terminal: incidencias por sector",
+    tilesLabel: "QUÉ ENCONTRÁS EN LA PÁGINA", cols: 2,
+    tiles: [
+      { icon: "FaMapMarkedAlt", title: "Mapa por sectores", desc: "Tocás un sector del techo para seleccionarlo" },
+      { icon: "FaPlusCircle", title: "Nueva incidencia", desc: "Registrás la incidencia sobre el sector" },
+      { icon: "FaFireAlt", title: "Mapa de calor", desc: "Los sectores se colorean según la cantidad de incidencias" },
+      { icon: "FaFileDownload", title: "Resumen y exportación", desc: "Totales por estado y descarga en CSV" },
+    ],
+    adv: [
+      ["FaFireAlt", "Sectores críticos visibles", "El color indica dónde se concentran las incidencias"],
+      ["FaClipboardList", "Seguimiento hasta el cierre", "Abiertas, en reparación y cerradas"],
+      ["FaFileDownload", "Datos para analizar", "Exportación a CSV de todas las incidencias"],
+      ["FaMobileAlt", "Pensada para usar en campo", "Zoom y rotación con dos dedos en el celular"],
+    ],
+    demo: ["Mapa: seleccionar un sector del techo", "Registrar una nueva incidencia", "Mapa de calor por cantidad de incidencias", "Resumen y exportación a CSV"],
+    notes: {
+      pantallazo: "Qué es: un mapa del techo de la terminal dividido en sectores donde se registran las filtraciones; el color de cada sector muestra cuántas incidencias tiene.",
+      mejoras: "Esta parada no tiene cifras de antes/ahora cargadas todavía: las ventajas salen de lo que hace la página. Si tenés cantidad de incidencias registradas o tiempos de cierre, sumalos acá.",
+      demo: "Pasar a la página en vivo. Recorrido sugerido: elegir un sector → registrar una incidencia → ver el mapa de calor → exportar. Falta insertar la captura de pantalla.",
+    },
+  },
+  {
+    id: "pista", idx: 6, name: "Infraestructura lado pista", gate: "A7", flight: "MANT-07", kind: "aporta",
+    url: "https://infra-lado-pista.vercel.app/", urlShort: "infra-lado-pista.vercel.app",
+    tagline: "Monitoreo PCI de pista: estado del pavimento por loza e incidencias",
+    tilesLabel: "QUÉ ENCONTRÁS EN LA PÁGINA", cols: 2,
+    tiles: [
+      { icon: "FaMapMarkedAlt", title: "Mapa por loza", desc: "Un clic en una loza muestra su información" },
+      { icon: "FaTachometerAlt", title: "Escala PCI", desc: "De 0 a 100, de fallado a excelente" },
+      { icon: "FaExclamationTriangle", title: "Incidencias", desc: "Registro por loza, filtrable por estructura" },
+      { icon: "FaExchangeAlt", title: "Dos vistas", desc: "Alterná entre vista PCI e incidencias" },
+    ],
+    adv: [
+      ["FaMapMarkedAlt", "Pavimento a la vista", "Cada loza coloreada según su PCI"],
+      ["FaTachometerAlt", "Una escala común", "Siete categorías, de excelente a fallado"],
+      ["FaExclamationTriangle", "Incidencias con seguimiento", "Abiertas, en reparación y cerradas"],
+      ["FaFileDownload", "Filtros y exportación", "Filtro por estructura y descarga en CSV"],
+    ],
+    demo: ["Vista PCI: estado de cada loza", "Clic en una loza para ver su información", "Vista de incidencias", "Filtrar por estructura y exportar"],
+    notes: {
+      pantallazo: "Qué es: el monitoreo del PCI (índice de condición del pavimento) del lado pista de Aeroparque, loza por loza, junto con el registro de incidencias.",
+      mejoras: "Esta parada no tiene cifras de antes/ahora cargadas todavía: las ventajas salen de lo que hace la página. Si tenés el PCI promedio o cantidad de incidencias, sumalos acá.",
+      demo: "Pasar a la página en vivo. Recorrido sugerido: vista PCI → clic en una loza → vista de incidencias → filtro por estructura. Falta insertar la captura de pantalla.",
     },
   },
 ];
@@ -184,23 +308,23 @@ async function slideItinerary(pres) {
   await header(s, "SALIDAS · DEPARTURES", null);
   mono(s, "NOVIEMBRE 2026", 10.43, 0.38, 2.4, 0.36, { align: "right", color: AMBER, fontSize: 12, bold: true });
   sans(s, "Itinerario de vuelo", 0.5, 0.85, 8, 0.7, { fontSize: 34, bold: true, fontFace: HEAD });
-  sans(s, "Siete paradas. Las primeras dos, hoy.", 0.5, 1.5, 8, 0.4, { fontSize: 16, color: MUTED });
+  sans(s, "Siete paradas, un solo recorrido.", 0.5, 1.5, 8, 0.4, { fontSize: 16, color: MUTED });
   const px = 0.5, py = 2.1, pw = 12.33, rowH = 0.56, hdrH = 0.5;
   s.addShape("roundRect", { x: px, y: py, w: pw, h: hdrH + rowH * 7 + 0.15, rectRadius: 0.12, fill: { color: PANEL }, line: { color: LINE, width: 1 }, objectName: "Panel de salidas" });
   const cols = { n: px + 0.3, dest: px + 1.0, hl: px + 6.0, gate: px + 9.0, st: px + 10.0 };
   [["N°", cols.n, 0.6], ["DESTINO", cols.dest, 4], ["DESTACADO", cols.hl, 3], ["PUERTA", cols.gate, 1], ["ESTADO", cols.st, 2]].forEach(([t, x, w]) =>
     mono(s, t, x, py + 0.12, w, hdrH - 0.2, { fontSize: 10, charSpacing: 1 }));
   for (let i = 0; i < 7; i++) {
-    const r = ROUTE[i], y = py + hdrH + i * rowH, live = i < 2;
-    if (live) s.addShape("rect", { x: px + 0.1, y: y + 0.02, w: pw - 0.2, h: rowH - 0.04, fill: { color: AMBER, transparency: 92 }, line: { color: AMBER, transparency: 92, width: 0.5 }, objectName: `Fila ${i + 1} destacada` });
+    const r = ROUTE[i], y = py + hdrH + i * rowH, live = true;
+    if (i === 0) s.addShape("rect", { x: px + 0.1, y: y + 0.02, w: pw - 0.2, h: rowH - 0.04, fill: { color: AMBER, transparency: 92 }, line: { color: AMBER, transparency: 92, width: 0.5 }, objectName: `Fila ${i + 1} destacada` });
     mono(s, String(i + 1).padStart(2, "0"), cols.n, y, 0.6, rowH, { color: live ? AMBER : MUTED, fontSize: 14 });
     mono(s, r.name.toUpperCase(), cols.dest, y, 5.0, rowH, { color: live ? TEXT : MUTED, fontSize: 15, bold: true });
-    mono(s, r.highlight || "—", cols.hl, y, 3.0, rowH, { color: live ? MINT : LINE2, fontSize: 12 });
+    mono(s, r.highlight || "—", cols.hl, y, 3.4, rowH, { color: live ? MINT : LINE2, fontSize: 11 });
     mono(s, r.gate, cols.gate, y, 1, rowH, { color: live ? AMBER : MUTED, fontSize: 15, bold: true });
     if (live) pill(s, i === 0 ? "EMBARCANDO" : "PRÓXIMA", cols.st, y + 0.1, 1.95, i === 0 ? AMBER : BLUE, `Estado fila ${i + 1}`);
     else pill(s, "PROGRAMADA", cols.st, y + 0.1, 1.95, GRAY, `Estado fila ${i + 1}`);
   }
-  s.addNotes("Mostrar el itinerario completo: son 7 herramientas del equipo. Hoy vemos en detalle las dos primeras; el resto sigue el mismo formato.");
+  s.addNotes("Mostrar el itinerario completo: son 7 herramientas del equipo. En cada parada vemos primero un pantallazo, después qué aporta o qué mejoró, y por último la página funcionando.");
 }
 
 // Tarjeta de embarque = pantallazo de la herramienta
@@ -230,13 +354,14 @@ async function slidePantallazo(pres, st) {
       sans(s, t.desc, x + 1.1, y + 0.58, tw - 1.25, 0.6, { fontSize: 14, color: MUTED });
     }
   } else {
-    const tw = (gw - gap * 3) / 4, th = 1.45;
+    const nc = st.cols, tw = (gw - gap * (nc - 1)) / nc, th = nc === 3 ? 1.4 : 1.45;
     for (let i = 0; i < st.tiles.length; i++) {
-      const t = st.tiles[i], x = gx + (i % 4) * (tw + gap), y = gy + Math.floor(i / 4) * (th + gap);
+      const t = st.tiles[i], x = gx + (i % nc) * (tw + gap), y = gy + Math.floor(i / nc) * (th + gap);
       s.addShape("roundRect", { x, y, w: tw, h: th, rectRadius: 0.1, fill: { color: PANEL2 }, line: { color: LINE, width: 1 }, objectName: `Herramienta ${t.title}` });
       s.addImage({ data: await icon(t.icon, BLUE), x: x + 0.15, y: y + 0.14, w: 0.3, h: 0.3, altText: t.title });
       sans(s, t.title, x + 0.15, y + 0.46, tw - 0.25, 0.5, { fontSize: 14, bold: true, valign: "bottom" });
-      sans(s, [{ text: t.big + " ", options: { bold: true, color: MINT, fontSize: 13 } }, { text: t.rest, options: { color: MUTED, fontSize: 12 } }], x + 0.15, y + 0.98, tw - 0.25, 0.42, { fontSize: 12 });
+      if (t.desc) sans(s, t.desc, x + 0.15, y + 0.98, tw - 0.25, 0.42, { fontSize: 12, color: MUTED });
+      else sans(s, [{ text: t.big + " ", options: { bold: true, color: MINT, fontSize: 13 } }, { text: t.rest, options: { color: MUTED, fontSize: 12 } }], x + 0.15, y + 0.98, tw - 0.25, 0.42, { fontSize: 12 });
     }
   }
 
@@ -330,6 +455,39 @@ async function slideTermoMejoras(pres, st) {
   s.addNotes(st.notes.mejoras);
 }
 
+async function slideAporta(pres, st) {
+  const s = base(pres, st.name);
+  const n = String(st.idx + 1).padStart(2, "0");
+  await header(s, `PARADA ${n} / 07  ·  PUERTA ${st.gate}`, "EN VUELO", BLUE);
+  sans(s, "Lo que aporta", 0.5, 0.8, 8, 0.75, { fontSize: 36, bold: true, fontFace: HEAD, valign: "middle" });
+  mono(s, st.statsLabel || st.name.toUpperCase(), 0.5, 1.5, 12, 0.3, { fontSize: 11, charSpacing: 1 });
+  const aw = (12.33 - 0.2) / 2;
+  let top = 1.95, ah = 2.1;
+  if (st.stats) {
+    const sw = (12.33 - 0.6) / 4;
+    st.stats.forEach(([num, l], i) => {
+      const x = 0.5 + i * (sw + 0.2);
+      s.addShape("roundRect", { x, y: 1.95, w: sw, h: 1.55, rectRadius: 0.1, fill: { color: PANEL }, line: { color: LINE, width: 1 }, objectName: `Cifra ${l}` });
+      mono(s, num, x, 2.1, sw, 0.85, { fontSize: 40, bold: true, color: AMBER, align: "center" });
+      sans(s, l, x + 0.2, 2.95, sw - 0.4, 0.5, { fontSize: 14, color: MUTED, align: "center" });
+    });
+    top = 3.7; ah = 1.25;
+  }
+  for (let i = 0; i < 4; i++) {
+    const [ic, t, d] = st.adv[i], x = 0.5 + (i % 2) * (aw + 0.2), y = top + Math.floor(i / 2) * (ah + 0.2);
+    const big = !st.stats, d0 = big ? 0.9 : 0.7;
+    s.addShape("roundRect", { x, y, w: aw, h: ah, rectRadius: 0.1, fill: { color: PANEL2 }, line: { color: LINE, width: 1 }, objectName: `Ventaja ${t}` });
+    s.addShape("ellipse", { x: x + 0.3, y: y + (ah - d0) / 2, w: d0, h: d0, fill: { color: GREEN, transparency: 80 }, line: { color: GREEN, width: 1 }, objectName: "Fondo ícono" });
+    const is = big ? 0.46 : 0.38;
+    s.addImage({ data: await icon(ic, GREEN), x: x + 0.3 + (d0 - is) / 2, y: y + (ah - is) / 2, w: is, h: is, altText: t });
+    const tx = x + 0.3 + d0 + 0.3, tw = aw - (tx - x) - 0.25;
+    sans(s, t, tx, y + (big ? 0.5 : 0.28), tw, 0.4, { fontSize: big ? 22 : 19, bold: true });
+    sans(s, d, tx, y + (big ? 0.95 : 0.7), tw, big ? 0.9 : 0.5, { fontSize: 14, color: MUTED });
+  }
+  await tracker(s, st.idx);
+  s.addNotes(st.notes.mejoras);
+}
+
 async function slideDemo(pres, st) {
   const s = base(pres, st.name);
   await header(s, `PARADA ${String(st.idx + 1).padStart(2, "0")} / 07  ·  PUERTA ${st.gate}`, "EN VIVO", GREEN);
@@ -386,7 +544,7 @@ async function slideClose(pres) {
     mono(s, pts[i][1], x + 0.9, y + 0.3, cw - 1.1, 0.4, { color: MINT, bold: true, fontSize: 16, charSpacing: 1 });
     sans(s, pts[i][2], x + 0.3, y + 0.85, cw - 0.6, 0.65, { fontSize: 14, color: "E4EEF0" });
   }
-  mono(s, "grilla-inteligente-termo.vercel.app   ·   web-termo.vercel.app", 0.8, 6.65, 11.7, 0.3, { color: "CFE3E6", fontSize: 12 });
+  mono(s, "7 herramientas de Mantenimiento AEP  ·  un solo recorrido", 0.8, 6.65, 11.7, 0.3, { color: "CFE3E6", fontSize: 12 });
   s.addNotes("Cierre. Volver al mensaje: más ordenado (todo en un lugar), más medido (cifras reales) y más planificado (cronograma a más de un año y cargas niveladas). Dejar los links en pantalla.");
 }
 
@@ -397,7 +555,7 @@ async function slideClose(pres) {
   pres.title = "Herramientas de Mantenimiento AEP";
   pres.author = "Mantenimiento AEP";
   pres.theme = { headFontFace: HEAD, bodyFontFace: BODY };
-  ["Embarque", "Grilla Inteligente", "Web Termo", "Aterrizaje"].forEach((t) => pres.addSection({ title: t }));
+  ["Embarque", ...STOPS.map((x) => x.name), "Aterrizaje"].forEach((t) => pres.addSection({ title: t }));
 
   await slideCover(pres);
   await slideItinerary(pres);
@@ -407,6 +565,11 @@ async function slideClose(pres) {
   await slidePantallazo(pres, STOPS[1]);
   await slideTermoMejoras(pres, STOPS[1]);
   await slideDemo(pres, STOPS[1]);
+  for (const st of STOPS.slice(2)) {
+    await slidePantallazo(pres, st);
+    await slideAporta(pres, st);
+    await slideDemo(pres, st);
+  }
   await slideClose(pres);
 
   await pres.writeFile({ fileName: OUT });
